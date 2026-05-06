@@ -183,21 +183,29 @@
             apiGet('getStateInstance');
         });
 
+        function formatChatId(phone) {
+            if (!phone) return '';
+            if (!phone.includes('@')) {
+                return phone + '@c.us';
+            }
+            return phone;
+        }
+
         document.getElementById('btnSendMessage').addEventListener('click', () => {
-            const chatId = document.getElementById('msgChatId').value.trim();
+            const chatId = formatChatId(document.getElementById('msgChatId').value.trim());
             const message = document.getElementById('msgText').value.trim();
             if (!chatId || !message) {
-                alert('Введите Chat ID и сообщение');
+                alert('Введите номер и сообщение');
                 return;
             }
             apiPost('sendMessage', { chatId, message });
         });
 
         document.getElementById('btnSendFileByUrl').addEventListener('click', () => {
-            const chatId = document.getElementById('fileChatId').value.trim();
+            const chatId = formatChatId(document.getElementById('fileChatId').value.trim());
             const urlFile = document.getElementById('fileUrl').value.trim();
             if (!chatId || !urlFile) {
-                alert('Введите Chat ID и URL файла');
+                alert('Введите номер и URL файла');
                 return;
             }
             apiPost('sendFileByUrl', { chatId, urlFile });
