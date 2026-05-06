@@ -207,7 +207,8 @@
                 alert('Введите номер и URL файла');
                 return;
             }
-            apiPost('sendFileByUrl', { chatId, urlFile });
+            const fileName = urlFile.split('/').pop() || 'file';
+            apiPost('sendFileByUrl', { chatId, urlFile, fileName });
         });
     </script>
 </body>
