@@ -185,10 +185,9 @@
 
         function formatChatId(phone) {
             if (!phone) return '';
-            if (!phone.includes('@')) {
-                return phone + '@c.us';
-            }
-            return phone;
+            if (phone.includes('@')) return phone;
+            const digits = phone.replace(/\D/g, '');
+            return digits + '@c.us';
         }
 
         document.getElementById('btnSendMessage').addEventListener('click', () => {
