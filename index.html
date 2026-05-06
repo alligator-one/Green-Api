@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GREEN-API</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #ffffff;
+            padding: 20px;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .left-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .right-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .field-group input,
+        .field-group textarea {
+            padding: 8px 10px;
+            border: 2px solid #333;
+            font-size: 14px;
+            color: #333;
+            outline: none;
+        }
+
+        .field-group input:focus,
+        .field-group textarea:focus {
+            border-color: #000;
+        }
+
+        #msgText {
+            min-height: 80px;
+            resize: vertical;
+            font-family: Arial, sans-serif;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: 1px solid #333;
+            background-color: #ffffff;
+            color: #333;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #f0f0f0;
+        }
+
+        .right-panel label {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        #response {
+            flex: 1;
+            min-height: 400px;
+            padding: 10px;
+            border: 2px solid #333;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            resize: none;
+            background-color: #ffffff;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <div class="field-group">
+                <input type="text" id="idInstance" placeholder="idInstance">
+            </div>
+            <div class="field-group">
+                <input type="text" id="apiTokenInstance" placeholder="apiTokenInstance">
+            </div>
+            <button id="btnGetSettings">getSettings</button>
+            <button id="btnGetStateInstance">getStateInstance</button>
+            <div class="field-group">
+                <input type="text" id="msgChatId" placeholder="77771234567">
+            </div>
+            <div class="field-group">
+                <textarea id="msgText" placeholder="Hello World!"></textarea>
+            </div>
+            <button id="btnSendMessage">sendMessage</button>
+            <div class="field-group">
+                <input type="text" id="fileChatId" placeholder="77771234567" >
+            </div>
+            <div class="field-group">
+                <input type="text" id="fileUrl" placeholder="http://my.site.com/img/horse.png">
+            </div>
+            <button id="btnSendFileByUrl">sendFileByUrl</button>
+        </div>
+        <div class="right-panel">
+            <label for="response">Ответ</label>
+            <textarea id="response" readonly></textarea>
+        </div>
+    </div>
+
+    <script>
+        const BASE_URL = 'https://api.green-api.com';
+
+        function getCredentials() {
+            const idInstance = document.getElementById('idInstance').value.trim();
+            const apiTokenInstance = document.getElementById('apiTokenInstance').value.trim();
+            if (!idInstance || !apiTokenInstance) {
+                alert('Введите idInstance и ApiTokenInstance');
+                return null;
+            }
+            return { idInstance, apiTokenInstance };
+        }
+
+        function showResponse(data) {
+            document.getElementById('response').value = JSON.stringify(data, null, 2);
+        }
+
+        async function apiGet(method) {
+            const cred = getCredentials();
+            if (!cred) return;
+            try {
+                const url = `${BASE_URL}/waInstance${cred.idInstance}/${method}/${cred.apiTokenInstance}`;
+                const res = await fetch(url);
+                const data = await res.json();
+                showResponse(data);
+            } catch (err) {
+                showResponse({ error: err.message });
+            }
+        }
+
+        async function apiPost(method, body) {
+            const cred = getCredentials();
+            if (!cred) return;
+            try {
+                const url = `${BASE_URL}/waInstance${cred.idInstance}/${method}/${cred.apiTokenInstance}`;
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+                showResponse(data);
+            } catch (err) {
+                showResponse({ error: err.message });
+            }
+        }
+
+        document.getElementById('btnGetSettings').addEventListener('click', () => {
+            apiGet('getSettings');
+        });
+
+        document.getElementById('btnGetStateInstance').addEventListener('click', () => {
+            apiGet('getStateInstance');
+        });
+
+        document.getElementById('btnSendMessage').addEventListener('click', () => {
+            const chatId = document.getElementById('msgChatId').value.trim();
+            const message = document.getElementById('msgText').value.trim();
+            if (!chatId || !message) {
+                alert('Введите Chat ID и сообщение');
+                return;
+            }
+            apiPost('sendMessage', { chatId, message });
+        });
+
+        document.getElementById('btnSendFileByUrl').addEventListener('click', () => {
+            const chatId = document.getElementById('fileChatId').value.trim();
+            const urlFile = document.getElementById('fileUrl').value.trim();
+            if (!chatId || !urlFile) {
+                alert('Введите Chat ID и URL файла');
+                return;
+            }
+            apiPost('sendFileByUrl', { chatId, urlFile });
+        });
+    </script>
+</body>
+</html>
